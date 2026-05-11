@@ -1,0 +1,774 @@
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d1117;
+  --surface: rgba(22, 30, 46, 0.85);
+  --surface2: rgba(30, 41, 59, 0.7);
+  --border: rgba(99, 179, 237, 0.15);
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --online: #22c55e;
+  --offline: #ef4444;
+  --sidebar-w: 320px;
+  --radius: 12px;
+  --transition: 0.3s ease;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  height: 100dvh; /* iOS Safari fix */
+  overflow: hidden;
+}
+
+/* ===== LOADING ===== */
+#loading-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+#loading-overlay p { color: var(--text-muted); font-size: 14px; }
+#loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.loader-ring {
+  width: 48px; height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== LAYOUT ===== */
+.app-container {
+  display: flex;
+  height: 100vh;
+  height: 100dvh; /* iOS Safari fix */
+  width: 100vw;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100vh;
+  height: 100dvh;
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  /* overflow-y on the sidebar itself handles all scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+  transition: transform var(--transition), width var(--transition);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  flex-shrink: 0;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ===== SIDEBAR HEADER ===== */
+.sidebar-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(59, 130, 246, 0.05);
+  /* Never compress — always full height */
+  flex-shrink: 0;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.brand-icon img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.brand h1 { font-size: 18px; font-weight: 700; color: var(--text); }
+.brand span { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3; }
+
+/* ===== SEARCH SECTION ===== */
+.search-section {
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.search-box {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  transition: border-color var(--transition);
+}
+.search-box:focus-within { border-color: var(--accent); }
+.search-box i { color: var(--text-muted); font-size: 13px; }
+.search-box input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 13px; width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+.search-box input::placeholder { color: var(--text-muted); }
+
+#district-filter {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+#district-filter:focus { border-color: var(--accent); }
+#district-filter option { background: #1e293b; }
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.stat-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.stat-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.stat-card > i {
+  font-size: 18px; color: var(--accent);
+  width: 20px; text-align: center;
+}
+.stat-card i.online { color: var(--online); }
+.stat-card div { display: flex; flex-direction: column; }
+.stat-card span { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; }
+.stat-card label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+/* ===== CHURCH DETAIL ===== */
+.church-detail {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  /* Let content define height — no min-height forcing overlap */
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+.detail-placeholder {
+  /* Fixed height placeholder so sidebar doesn't collapse when empty */
+  min-height: 140px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; color: var(--text-muted);
+  text-align: center;
+}
+.detail-placeholder i { font-size: 28px; opacity: 0.4; }
+.detail-placeholder p { font-size: 12px; line-height: 1.5; }
+
+/* Church detail card (populated) */
+.church-card { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.church-card-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 14px;
+}
+.church-avatar {
+  width: 108px; height: 108px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; color: #fff; flex-shrink: 0;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+  overflow: hidden;
+}
+.church-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.church-card-header h2 { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.church-card-church-name { font-size: 12px; color: var(--accent2); font-weight: 500; margin-top: 2px; }
+.church-card-header p { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500;
+  padding: 3px 8px; border-radius: 20px;
+  margin-bottom: 12px;
+}
+.status-badge.online { background: rgba(34, 197, 94, 0.15); color: var(--online); }
+.status-badge.offline { background: rgba(239, 68, 68, 0.15); color: var(--offline); }
+.status-badge i { font-size: 8px; }
+
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 14px;
+}
+.info-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px;
+}
+.info-item label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+.info-item span { font-size: 13px; font-weight: 600; color: var(--text); }
+
+.btn-sheets {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 10px;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
+  cursor: pointer; text-decoration: none;
+  transition: opacity var(--transition), transform var(--transition);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+.btn-sheets:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ===== RECENT UPDATES ===== */
+.recent-section {
+  padding: 16px 20px 24px;
+  /* Never compress — sits naturally below church detail */
+  flex-shrink: 0;
+}
+.recent-section h3 {
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 12px;
+}
+.recent-section h3 i { color: var(--accent); }
+
+#recent-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+#recent-list li {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px;
+  font-size: 12px; color: var(--text-muted);
+  display: flex; align-items: flex-start; gap: 8px;
+  transition: border-color var(--transition);
+}
+#recent-list li:hover { border-color: var(--accent); }
+#recent-list li i { color: var(--accent); margin-top: 1px; flex-shrink: 0; }
+#recent-list li span { line-height: 1.4; }
+
+/* ===== FLOATING MISSION FILTER ===== */
+.mission-filter {
+  position: absolute;
+  top: 16px; left: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 200px); /* never reach the view toggle */
+  pointer-events: all;
+}
+.mission-btn {
+  display: flex; align-items: center;
+  padding: 7px 14px;
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 12px; font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  touch-action: manipulation;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+.mission-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--text);
+}
+.mission-btn.active {
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.45);
+}
+
+@media (max-width: 640px) {
+  .mission-filter {
+    top: 12px; left: 12px;
+    max-width: calc(100% - 32px);
+  }
+  .mission-btn { padding: 6px 10px; font-size: 11px; }
+}
+.view-toggle {
+  position: absolute;
+  top: 16px; right: 16px;
+  z-index: 1000;
+  display: flex;
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  /* Prevent Leaflet pointer-events from swallowing clicks */
+  pointer-events: all;
+}
+.view-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  border: none; border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px; font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+.view-btn i { font-size: 12px; }
+.view-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--text);
+}
+.view-btn.active {
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.45);
+}
+
+@media (max-width: 640px) {
+  .view-toggle { top: 12px; right: 12px; }
+  .view-btn { padding: 6px 12px; font-size: 12px; }
+}
+
+/* ===== MAP ===== */
+.map-wrapper { flex: 1; position: relative; min-width: 0; }
+#map { width: 100%; height: 100%; min-height: 0; }
+
+/* Leaflet overrides — Voyager tile theme */
+.leaflet-container { background: #e8f4f8; }
+
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+  color: #333333 !important;
+}
+.leaflet-popup-tip { background: rgba(255, 255, 255, 0.97) !important; }
+.leaflet-popup-content { margin: 14px 16px !important; }
+.leaflet-popup-close-button { color: #666 !important; font-size: 18px !important; }
+
+.popup-title { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; }
+.popup-sub { font-size: 12px; color: #555; }
+.popup-status { font-size: 11px; margin-top: 6px; }
+.popup-status.online { color: var(--online); }
+.popup-status.offline { color: var(--offline); }
+
+/* ===== PASTOR PHOTO PIN MARKER ===== */
+.pastor-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 4px 10px rgba(59, 130, 246, 0.55));
+  transition: filter 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+.pastor-pin:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.75));
+}
+
+/* Circular photo frame */
+.pastor-pin__photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px var(--accent);
+  position: relative;
+  z-index: 1;
+}
+.pastor-pin__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+.pastor-pin__photo i {
+  color: #fff;
+  font-size: 18px;
+}
+
+/* Triangular tail pointing down */
+.pastor-pin__tail {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid #ffffff;
+  margin-top: -2px;
+  filter: drop-shadow(0 3px 4px rgba(59, 130, 246, 0.4));
+}
+
+/* Active state — orange glow */
+.pastor-pin.active {
+  filter: drop-shadow(0 4px 14px rgba(245, 158, 11, 0.75));
+}
+.pastor-pin.active .pastor-pin__photo {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px #f59e0b, 0 0 12px 4px rgba(245, 158, 11, 0.5);
+}
+.pastor-pin.active .pastor-pin__tail {
+  border-top-color: #f59e0b;
+}
+
+/* Cluster override */
+.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+  background-color: rgba(59, 130, 246, 0.7) !important;
+  color: #fff !important; font-weight: 600;
+}
+
+/* ===== MOBILE TOGGLE BUTTON ===== */
+#sidebar-toggle {
+  /* Hidden on desktop — shown via media query */
+  display: none;
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 300;
+  width: 44px; height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  touch-action: manipulation;
+  transition: background var(--transition);
+}
+#sidebar-toggle:hover { background: var(--surface2); }
+
+/* ===== SIDEBAR CLOSE BUTTON ===== */
+#sidebar-close {
+  /* Hidden on desktop — shown via media query */
+  display: none;
+  position: absolute;
+  top: 12px; right: 12px;
+  z-index: 10;
+  width: 32px; height: 32px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+/* ===== BACKDROP ===== */
+#sidebar-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 149;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+#sidebar-backdrop.visible { display: block; }
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+/* ===== LARGE DESKTOP (≥ 1440px) ===== */
+@media (min-width: 1440px) {
+  :root { --sidebar-w: 360px; }
+  .brand h1 { font-size: 20px; }
+  .stat-card { padding: 18px 16px; }
+}
+
+/* ===== TABLET LANDSCAPE (1025px – 1279px) ===== */
+@media (max-width: 1279px) and (min-width: 1025px) {
+  :root { --sidebar-w: 290px; }
+}
+
+/* ===== TABLET PORTRAIT (769px – 1024px) ===== */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-w: 270px; }
+
+  .sidebar-header { padding: 16px 16px 12px; }
+  .search-section { padding: 12px 16px; }
+  .stats-grid { padding: 12px 16px; gap: 8px; }
+  .stat-card { padding: 12px 10px; gap: 8px; }
+  .stat-card span { font-size: 14px; }
+  .church-detail { padding: 12px 16px; }
+  .recent-section { padding: 12px 16px 20px; }
+  .info-grid { gap: 6px; }
+  .info-item span { font-size: 12px; }
+}
+
+/* ===== SMALL TABLET / LARGE MOBILE (641px – 768px) ===== */
+@media (max-width: 768px) and (min-width: 641px) {
+  :root { --sidebar-w: 260px; }
+
+  #sidebar-toggle { display: flex; }
+  #sidebar-close  { display: flex; }
+
+  /* Sidebar slides in from the left on small tablets */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100dvh;
+    transform: translateX(-100%);
+    z-index: 150;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid var(--border);
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  /* Map fills full screen — sidebar overlays on top */
+  .map-wrapper {
+    width: 100vw;
+    height: 100dvh;
+  }
+
+  .sidebar-header { padding: 16px 16px 12px; }
+  .search-section { padding: 12px 16px; }
+  .stats-grid { padding: 12px 16px; gap: 8px; }
+  .stat-card { padding: 12px 10px; }
+  .church-detail { padding: 12px 16px; }
+  .recent-section { padding: 12px 16px 20px; }
+}
+
+/* ===== MOBILE (≤ 640px) ===== */
+@media (max-width: 640px) {
+  #sidebar-toggle { display: flex; }
+  #sidebar-close  { display: flex; }
+
+  /* Bottom sheet — slides up from bottom */
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    min-width: unset;
+    /* Do NOT set top — only bottom anchors it */
+    height: 82dvh;
+    max-height: 82dvh;
+    transform: translateY(100%);
+    z-index: 150;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+    transition: transform var(--transition);
+  }
+  .sidebar.open { transform: translateY(0); }
+
+  /* Drag handle pill above header content */
+  .sidebar-header {
+    padding: 24px 16px 12px;
+    position: relative;
+  }
+  .sidebar-header::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  /* Map stays fullscreen behind the sheet */
+  .map-wrapper {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+  }
+
+  .search-section { padding: 10px 14px; }
+  .stats-grid { padding: 10px 14px; gap: 8px; }
+  .stat-card { padding: 12px 10px; gap: 8px; }
+  .stat-card span { font-size: 14px; }
+  .church-detail { padding: 10px 14px; }
+  .recent-section { padding: 10px 14px 20px; }
+  .info-grid { gap: 6px; }
+
+  /* Push zoom controls above the sheet handle area */
+  .leaflet-bottom.leaflet-right { bottom: 16px; right: 12px; }
+}
+
+/* ===== SMALL PHONES (≤ 380px) ===== */
+@media (max-width: 380px) {
+  .sidebar { height: 88dvh; max-height: 88dvh; }
+  .brand h1 { font-size: 15px; }
+  .brand-icon { width: 36px; height: 36px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 12px; }
+  .stat-card { padding: 10px 8px; gap: 6px; }
+  .stat-card > i { font-size: 15px; }
+  .stat-card span { font-size: 13px; }
+  .info-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .info-item span { font-size: 11px; }
+  .btn-sheets { font-size: 12px; padding: 9px; }
+  .search-section { padding: 8px 12px; }
+  .church-detail { padding: 8px 12px; }
+  .recent-section { padding: 8px 12px 16px; }
+}
+
+/* ===== ASSIGNED CHURCHES MODAL ===== */
+.churches-modal {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 2000;
+  align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 20px;
+}
+.churches-modal.open { display: flex; }
+
+.churches-modal__box {
+  background: rgba(22, 30, 46, 0.97);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  width: 100%; max-width: 480px;
+  max-height: 80dvh;
+  display: flex; flex-direction: column;
+  animation: fadeIn 0.2s ease;
+}
+.churches-modal__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.churches-modal__header h2 {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.churches-modal__header h2 i { color: var(--accent); }
+.churches-modal__header button {
+  width: 30px; height: 30px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text-muted);
+  cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition);
+}
+.churches-modal__header button:hover { background: var(--border); color: var(--text); }
+
+.churches-modal__body {
+  overflow-y: auto; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.churches-modal__body::-webkit-scrollbar { width: 4px; }
+.churches-modal__body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.church-list-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color var(--transition);
+}
+.church-list-item:hover { border-color: var(--accent); }
+.church-list-item__name { font-size: 13px; font-weight: 600; color: var(--text); }
+.church-list-item__row {
+  font-size: 11px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 5px;
+}
+.church-list-item__row i { color: var(--accent); font-size: 10px; width: 12px; flex-shrink: 0; }
+
+.modal-empty {
+  text-align: center; padding: 32px 0;
+  color: var(--text-muted); font-size: 13px;
+}
+.modal-empty i { font-size: 28px; opacity: 0.3; display: block; margin-bottom: 10px; }
+
+.modal-loading {
+  text-align: center; padding: 32px 0;
+  color: var(--text-muted); font-size: 13px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+
+/* ===== TITHES YEAR ROWS ===== */
+.tithes-year-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  transition: border-color var(--transition);
+}
+.tithes-year-row:hover { border-color: var(--accent); }
+.tithes-year-label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.tithes-year-amount { font-size: 15px; font-weight: 700; color: var(--text); }
+.tithes-total-row { border-color: var(--accent); margin-top: 4px; }
+.tithes-total-row .tithes-year-label { color: var(--accent); }
+.tithes-total-row .tithes-year-amount { color: var(--accent); }
+
+/* Clickable info card */
+.info-item.clickable {
+  cursor: pointer;
+  transition: border-color var(--transition), transform var(--transition), background var(--transition);
+}
+.info-item.clickable:hover {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+  transform: translateY(-1px);
+}
+.info-item.clickable label { cursor: pointer; }
+.info-item.clickable span::after {
+  content: ' ↗';
+  font-size: 10px;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .churches-modal { padding: 0; align-items: flex-end; }
+  .churches-modal__box { max-height: 75dvh; border-radius: 16px 16px 0 0; max-width: 100%; }
+}
