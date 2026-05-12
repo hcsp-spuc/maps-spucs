@@ -7,8 +7,8 @@
 // ===== ENDPOINTS =====
 const ENDPOINTS = {
   district: `${SUPABASE_URL}/rest/v1/districts?select=id,mission_id,name,leader_name,address,contact,latitude,longitude,profile_photo_url,churches(count)`,
-  // contact and photo_url must be added to churches table first — see SQL below
-  church:   `${SUPABASE_URL}/rest/v1/churches?select=id,district_id,name,address,latitude,longitude,districts(name,mission_id)`,
+  // Added profile_photo_url to the church endpoint
+  church:   `${SUPABASE_URL}/rest/v1/churches?select=id,district_id,name,address,latitude,longitude,profile_photo_url,districts(name,mission_id)`,
   missions: `${SUPABASE_URL}/rest/v1/missions?select=id,code,name`
 };
 
@@ -23,6 +23,7 @@ let refreshTimer   = null;
 let MISSIONS       = [];          // [{id, code, name}]
 let DISTRICT_MAP   = {};          // district_id → mission_id (for church view)
 const TITHES_YEARS = [2026, 2025];
+const DEFAULT_CHURCH_PHOTO = '/assets/images/default-church.png'; // Default placeholder image
 
 // ===== SUPABASE FETCH =====
 async function fetchFromSupabase(view) {
@@ -80,7 +81,7 @@ function normalizeChurch(row) {
     address:      row.address || '—',
     contact:      '—',
     lat, lng,
-    pastor_image: null,        // never use district photo for church markers
+    pastor_image: row.profile_photo_url || DEFAULT_CHURCH_PHOTO, // Use profile_photo_url or default
     members:      null,
     tithes:       null,
     sheets_url:   '#',
@@ -239,7 +240,7 @@ function initMap() {
 // ===== MARKER ICON =====
 function createMarkerIcon(isActive = false, photo = null) {
   const imgContent = photo
-    ? `<img src="${photo}" alt="photo" />`
+    ? `<img src="${photo}" alt="photo" />` // Use profile photo if available
     : `<i class="fas fa-${currentView === 'district' ? 'map' : 'church'}"></i>`;
 
   return L.divIcon({
@@ -254,6 +255,7 @@ function createMarkerIcon(isActive = false, photo = null) {
     popupAnchor: [0, -62]
   });
 }
+
 
 // ===== RENDER MARKERS =====
 function renderMarkers(data) {
@@ -327,7 +329,11 @@ function updateSidebar(item) {
     panel.innerHTML = `
       <div class="church-card">
         <div class="church-card-header">
-          <div class="church-avatar"><i class="fas fa-church"></i></div>
+          <div class="church-avatar">
+            ${item.pastor_image
+              ? `<img src="${item.pastor_image}" alt="${item.name}" />` // Display profile photo
+              : `<i class="fas fa-church"></i>`}
+          </div>
           <div>
             <h2>${item.name}</h2>
             <p>${item.address}</p>
