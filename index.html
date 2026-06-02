@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Church Dashboard Map</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <link rel="stylesheet" href="Styles/index.css"/>
+</head>
+<body>
+  
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="loader-ring"></div>
+    <p>Loading Church Map...</p>
+  </div>
+
+  <!-- Sidebar backdrop (mobile tap-to-close) -->
+  <div id="sidebar-backdrop"></div>
+
+  <!-- Mobile Toggle Button -->
+  <button id="sidebar-toggle" aria-label="Toggle Sidebar">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Tithes Summary Modal -->
+  <div id="tithes-modal" class="churches-modal" role="dialog" aria-modal="true" aria-labelledby="tithes-modal-title">
+    <div class="churches-modal__box">
+      <div class="churches-modal__header">
+        <h2 id="tithes-modal-title"><i class="fas fa-coins"></i> Tithes Summary</h2>
+        <button id="tithes-modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="churches-modal__body" id="tithes-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Assigned Churches Modal -->
+  <div id="churches-modal" class="churches-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="churches-modal__box">
+      <div class="churches-modal__header">
+        <h2 id="modal-title"><i class="fas fa-church"></i> Assigned Churches</h2>
+        <button id="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="churches-modal__body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="app-container">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Branding -->
+      <div class="sidebar-header">
+        <button id="sidebar-close" aria-label="Close Sidebar"><i class="fas fa-times"></i></button>
+        <div class="brand">
+          <div class="brand-icon">
+            <img src="assets/logo/SPUC logo.jpg" alt="SPUC Logo"/>
+          </div>
+          <div>
+            <h1>District</h1>
+            <span>SPUC</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="search-section">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="search-input" placeholder="Search pastor name..."/>
+        </div>
+        <select id="district-filter">
+          <option value="">All Districts</option>
+        </select>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-map"></i>
+          <div>
+            <span id="stat-districts">0</span>
+            <label>Districts</label>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-user-tie"></i>
+          <div>
+            <span id="stat-pastors">0</span>
+            <label>Pastors</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Church Detail Panel -->
+      <div class="church-detail" id="church-detail">
+        <div class="detail-placeholder">
+          <i class="fas fa-map-marker-alt"></i>
+          <p>Click a marker on the map to view church details</p>
+        </div>
+      </div>
+
+      <!-- Recent Updates -->
+      <div class="recent-section">
+        <h3><i class="fas fa-clock"></i> Recent Updates</h3>
+        <ul id="recent-list"></ul>
+      </div>
+
+    </aside>
+
+    <!-- ===== MAP ===== -->
+    <main class="map-wrapper">
+      <!-- Floating View Toggle -->
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="district">
+          <i class="fas fa-map"></i> District
+        </button>
+        <button class="view-btn" data-view="church">
+          <i class="fas fa-church"></i> Church
+        </button>
+      </div>
+      <!-- Floating Mission Filter -->
+      <div class="mission-filter" id="mission-filter">
+        <!-- Buttons built dynamically from missions table -->
+      </div>
+      <div id="map"></div>
+    </main>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet MarkerCluster JS -->
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <script src="Scripts/supabase.js"></script>
+  <script src="Scripts/index.js"></script>
+</body>
+</html>
